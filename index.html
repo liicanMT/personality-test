@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>当代人生存人格测试</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --accent: #e94560;
+      --accent2: #0f3460;
+      --text: #eee;
+      --text2: #aaa;
+      --gold: #f5c518;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; flex-direction: column; }
+    
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      width: 100%;
+    }
+    
+    /* ===== INTRO ===== */
+    #intro {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(135deg, #0f0f1a 0%, #16213e 50%, #1a1a2e 100%);
+    }
+    
+    .hero-emoji { font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite; }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    
+    .hero-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #e94560, #f5c518, #0f3460);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-sub { color: var(--text2); font-size: 1rem; margin-bottom: 32px; line-height: 1.6; }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #c0392b);
+      color: #fff;
+      border: none;
+      padding: 16px 48px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(233,69,96,0.4);
+    }
+    
+    .btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 30px rgba(233,69,96,0.6); }
+    
+    .btn-secondary {
+      background: transparent;
+      color: var(--text2);
+      border: 1px solid #333;
+      padding: 12px 28px;
+      font-size: 0.95rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    
+    /* ===== TEST ===== */
+    .topbar {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      padding: 12px 0;
+      z-index: 10;
+      border-bottom: 1px solid #222;
+      margin-bottom: 24px;
+    }
+    
+    .progress-bar {
+      height: 6px;
+      background: #222;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      border-radius: 3px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+    
+    .progress-text { font-size: 0.85rem; color: var(--text2); text-align: right; }
+    
+    .question-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      border: 1px solid #2a2a4a;
+      animation: fadeIn 0.4s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .q-number { font-size: 0.8rem; color: var(--accent); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    
+    .q-text { font-size: 1.15rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+    
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    
+    .option {
+      background: #16213e;
+      border: 2px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    
+    .option:hover { border-color: var(--accent); background: #1a1a3e; }
+    
+    .option.selected { border-color: var(--accent); background: rgba(233,69,96,0.15); }
+    
+    .actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+    
+    .hint { text-align: center; color: var(--text2); font-size: 0.85rem; margin-top: 16px; }
+    
+    /* ===== RESULT ===== */
+    #result { background: linear-gradient(180deg, #0f0f1a 0%, #16213e 100%); }
+    
+    .result-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 32px 24px;
+      border: 1px solid #2a2a4a;
+      text-align: center;
+    }
+    
+    .result-emoji { font-size: 72px; margin-bottom: 16px; }
+    
+    .result-label { font-size: 0.85rem; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 2px; }
+    
+    .result-type {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .result-match {
+      display: inline-block;
+      background: rgba(233,69,96,0.2);
+      color: var(--accent);
+      padding: 4px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    
+    .result-desc {
+      color: var(--text2);
+      line-height: 1.7;
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+    
+    .dim-section { margin-bottom: 28px; }
+    .dim-section h3 { font-size: 1rem; margin-bottom: 16px; color: var(--gold); }
+    
+    .dim-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+    
+    .dim-label { width: 80px; font-size: 0.8rem; color: var(--text2); text-align: right; flex-shrink: 0; }
+    
+    .dim-bar {
+      flex: 1;
+      height: 8px;
+      background: #222;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .dim-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1s ease;
+    }
+    
+    .dim-val { width: 36px; font-size: 0.8rem; color: var(--text2); }
+    
+    .share-box {
+      margin-top: 24px;
+      padding: 16px;
+      background: #16213e;
+      border-radius: 12px;
+    }
+    
+    .share-box p { font-size: 0.85rem; color: var(--text2); margin-bottom: 10px; }
+    
+    .share-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    
+    .note-box {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(245,197,24,0.05);
+      border: 1px solid rgba(245,197,24,0.2);
+      border-radius: 12px;
+    }
+    
+    .note-box p { font-size: 0.8rem; color: var(--text2); line-height: 1.6; }
+    
+    @media (max-width: 480px) {
+      .hero-title { font-size: 1.5rem; }
+      .hero-emoji { font-size: 60px; }
+      .result-type { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- INTRO -->
+<section id="intro" class="screen active">
+  <div class="hero-emoji">🎭</div>
+  <h1 class="hero-title">当代人生存人格测试</h1>
+  <p class="hero-sub">
+    你是卷王还是摸鱼大师？是社恐还是社交恐怖分子？<br>
+    20道题，测出你在当代社会的真实生存人格。
+  </p>
+  <button class="btn-primary" id="startBtn">开始测试</button>
+  <p style="color:#555; font-size:0.75rem; margin-top:20px;">本测试仅供娱乐，切勿对号入座到走火入魔</p>
+</section>
+
+<!-- TEST -->
+<section id="test" class="screen">
+  <div class="container">
+    <div class="topbar">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText">0 / 20</div>
+    </div>
+    <div id="questionArea"></div>
+    <div class="actions">
+      <button class="btn-secondary" id="backBtn">返回首页</button>
+      <button class="btn-primary" id="submitBtn" style="display:none;">查看结果</button>
+    </div>
+    <p class="hint" id="hint">认真作答，别想着选个"正确答案"蒙混过关 😏</p>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section id="result" class="screen">
+  <div class="container">
+    <div class="result-card">
+      <div class="result-emoji" id="resultEmoji"></div>
+      <div class="result-label">你的生存人格</div>
+      <div class="result-type" id="resultType"></div>
+      <div class="result-match" id="resultMatch"></div>
+      <div class="result-desc" id="resultDesc"></div>
+      
+      <div class="dim-section">
+        <h3>📊 人格维度雷达</h3>
+        <div id="dimList"></div>
+      </div>
+      
+      <div class="share-box">
+        <p>把这个结果分享给朋友，看看他们是什么人格 👀</p>
+        <button class="share-btn" id="copyBtn">📋 复制结果</button>
+      </div>
+      
+      <div class="note-box">
+        <p>⚠️ 本测试纯属娱乐，人格是复杂的，不是20道题能定义的。如果你觉得不准，那说明你是一个无法被定义的人类（恭喜）。如果准的话…请默默接受现实。</p>
+      </div>
+    </div>
+    
+    <div class="actions" style="margin-top:20px;">
+      <button class="btn-secondary" id="restartBtn">再来一次</button>
+    </div>
+  </div>
+</section>
+
+<script>
+// ===== DATA =====
+const questions = [
+  {
+    q: "周末早上10点，你通常处于什么状态？",
+    opts: [
+      "已经起床并完成了三项任务，人生不等人",
+      "刚醒，正在床上刷手机刷到宇宙爆炸",
+      "醒了但选择闭眼，假装自己还在睡",
+      "？周末是什么，我不是全年无休吗"
+    ],
+    dims: [[0,2],[1,3],[2,3],[3,1]]
+  },
+  {
+    q: "领导在群里发了一条消息，你的第一反应是？",
+    opts: [
+      "秒回：收到！好的！没问题！",
+      "等别人先回，我看看风向再说",
+      "假装没看到，等私聊我再回",
+      "内心翻了个白眼，然后默默打字"
+    ],
+    dims: [[0,1],[1,3],[2,3],[3,2]]
+  },
+  {
+    q: "聚餐时你一般扮演什么角色？",
+    opts: [
+      "组织者，从选餐厅到催付款一条龙",
+      "气氛组，负责讲段子和带动节奏",
+      "安静干饭型，偶尔附和两句",
+      "社恐角落型，希望不要有人注意到我"
+    ],
+    dims: [[0,1],[1,2],[2,3],[3,3]]
+  },
+  {
+    q: "你手机里最多的App类型是？",
+    opts: [
+      "效率工具类：日历、待办、笔记、番茄钟",
+      "社交媒体类：微博、小红书、抖音、B站",
+      "游戏类：别问，问就是全都要",
+      "金融理财类：基金、股票、记账…虽然也没赚"
+    ],
+    dims: [[0,1],[1,2],[2,3],[3,1]]
+  },
+  {
+    q: "面对一个deadline，你的策略是？",
+    opts: [
+      "提前完成，享受deadline前的悠闲时光",
+      "稳步推进，但最后一天会爆发出惊人效率",
+      "deadline是第一生产力，最后3小时创造奇迹",
+      "什么deadline？我选择性遗忘"
+    ],
+    dims: [[0,1],[1,2],[2,3],[3,3]]
+  },
+  {
+    q: "你对"躺平"这个词的态度是？",
+    opts: [
+      "不认同，人生就是要奋斗",
+      "嘴上说躺平，身体很诚实地上进",
+      "间歇性躺平，持续性焦虑",
+      "已经躺平，而且躺出了专业水平"
+    ],
+    dims: [[0,1],[1,2],[2,3],[3,3]]
+  },
+  {
+    q: "朋友突然约你出门，你会？",
+    opts: [
+      "好啊！马上！等我换衣服！",
+      "先问去哪、见谁、干什么，再决定",
+      "找借口拒绝，但在家后悔了一整天",
+      "直接拒绝，然后继续做自己的事，毫无波澜"
+    ],
+    dims: [[0,2],[1,2],[2,3],[3,3]]
+  },
+  {
+    q: "你最怕听到的一句话是？",
+    opts: [
+      ""你很有潜力，要更努力哦"",
+      ""这个需求很简单，很快就能做好"",
+      ""我们开个短会"",
+      ""你最近是不是胖了""
+    ],
+    dims: [[0,1],[1,2],[2,2],[3,3]]
+  },
+  {
+    q: "深夜12点你在做什么？",
+    opts: [
+      "已经入睡，作息规律得像个退休干部",
+      "在做白天没做完的工作或学习",
+      "刷手机/看剧/打游戏，但内心充满愧疚",
+      "刷手机/看剧/打游戏，毫无愧疚，快乐似神仙"
+    ],
+    dims: [[0,1],[1,1],[2,2],[3,3]]
+  },
+  {
+    q: "你对"内卷"的态度是？",
+    opts: [
+      "主动卷，而且卷出了心得和方法论",
+      "被动卷，不卷就会被淘汰啊",
+      "反卷斗士，用行动抵抗不正之风",
+      "已经超越了卷与不卷的境界"
+    ],
+    dims: [[0,1],[1,2],[2,2],[3,3]]
+  },
+  {
+    q: "你发朋友圈/社交媒体的频率是？",
+    opts: [
+      "每天至少一条，记录生活的每个瞬间",
+      "一周几条，精心编辑配图和文案",
+      "几个月一条，偶尔冒泡证明还活着",
+      "从不发，我的生活不需要观众"
+    ],
+    dims: [[0,2],[1,2],[2,3],[3,3]]
+  },
+  {
+    q: "面对一个你不喜欢但有用的人，你会？",
+    opts: [
+      "主动社交，建立互惠关系",
+      "保持礼貌但有距离的互动",
+      "能不接触就不接触，有用的消息线上解决",
+      "直接无视，我的精神内耗已经够多了"
+    ],
+    dims: [[0,1],[1,2],[2,3],[3,3]]
+  },
+  {
+    q: "你的消费观最接近哪个？",
+    opts: [
+      "精打每一分钱，该省省该花花",
+      "冲动消费型，买完后悔，后悔完继续买",
+      "佛系消费，需要就买，不需要就不买",
+      "极简主义，能不买就不买"
+    ],
+    dims: [[0,1],[1,3],[2,2],[3,2]]
+  },
+  {
+    q: "你学习新技能的主要动力是？",
+    opts: [
+      "提升自己，为未来做准备",
+      "工作/生活需要，不得不学",
+      "纯粹因为好奇和热爱",
+      "学什么新技能？我选择原地踏步"
+    ],
+    dims: [[0,1],[1,2],[2,2],[3,3]]
+  },
+  {
+    q: "面对网络上的杠精，你会？",
+    opts: [
+      "理性辩论，用事实和逻辑说服对方",
+      "拉黑/无视，不浪费一秒钟",
+      "忍不住下场互怼，虽然知道没意义",
+      "围观吃瓜，偶尔插一句拱火"
+    ],
+    dims: [[0,1],[1,2],[2,3],[3,2]]
+  },
+  {
+    q: "你的房间/桌面现在是什么状态？",
+    opts: [
+      "整洁到可以随时拍家居杂志",
+      "有秩序的混乱，我知道每样东西在哪",
+      "乱但不想收拾，等忍不了再说",
+      "已经和杂物达成了共生关系"
+    ],
+    dims: [[0,1],[1,2],[2,3],[3,3]]
+  },
+  {
+    q: "你对未来的规划有多清晰？",
+    opts: [
+      "有详细的五年计划和年度目标",
+      "有个大概方向，具体再说",
+      "走一步看一步，计划赶不上变化",
+      "未来？我连明天吃什么都没想好"
+    ],
+    dims: [[0,1],[1,2],[2,3],[3,3]]
+  },
+  {
+    q: "工作中最让你崩溃的是？",
+    opts: [
+      "需求反复变更，做了又改改了又做",
+      "开会开会开会，无意义的会",
+      "同事甩锅/不配合/沟通困难",
+      "以上全部，以及更多"
+    ],
+    dims: [[0,1],[1,2],[2,2],[3,3]]
+  },
+  {
+    q: "你最认同的一句话是？",
+    opts: [
+      ""努力不一定成功，但不努力一定很轻松"",
+      ""人生苦短，及时行乐"",
+      ""只要我不努力，别人就卷不过我"",
+      ""间歇性踌躇满志，持续性混吃等死""
+    ],
+    dims: [[0,1],[1,2],[2,3],[3,3]]
+  },
+  {
+    q: "如果明天不用上班/上学，你会？",
+    opts: [
+      "安排满满的行程，充分利用每一小时",
+      "做一直想做但没时间做的事",
+      "睡到自然醒，然后随机应变",
+      "躺着，什么都不做，享受虚无"
+    ],
+    dims: [[0,1],[1,2],[2,3],[3,3]]
+  }
+];
+
+const types = [
+  {
+    name: "永动机型打工人",
+    emoji: "⚡",
+    minScore: 0,
+    maxScore: 12,
+    desc: "你的人生字典里没有"休息"两个字。你的日程表比CEO还满，你的效率让周围人自愧不如。你不是在工作，就是在去工作的路上，或者在工作的路上思考工作。建议：偶尔停下来，看看天空，你会发现天空也在卷你。",
+    colors: ["#e94560","#ff6b6b"]
+  },
+  {
+    name: "精致利己主义者",
+    emoji: "🎯",
+    minScore: 13,
+    maxScore: 20,
+    desc: "你深谙社会生存法则，知道什么时候该表现，什么时候该隐藏。你的人际关系是精心计算的投资组合，你的每一步都有明确的目的。别人觉得你很会来事，但你只是不想浪费任何一次有效社交。效率至上，感情靠边。",
+    colors: ["#f5c518","#ff9f43"]
+  },
+  {
+    name: "人间清醒型选手",
+    emoji: "🧠",
+    minScore: 21,
+    maxScore: 28,
+    desc: "你看透了这个世界的运行规则，但选择保持体面。你知道卷没意义但还是会适度卷，知道躺平很爽但不敢真躺。你活在理想和现实的夹缝中，用理性维持着微妙的平衡。你是朋友圈里最靠谱的人，也是深夜最焦虑的人。",
+    colors: ["#0f3460","#5f27cd"]
+  },
+  {
+    name: "社交恐怖分子",
+    emoji: "🎪",
+    minScore: 29,
+    maxScore: 36,
+    desc: "你的社交能量是核反应堆级别的。你认识的人比WiFi连接的设备还多，你的群聊消息永远99+。你可以在任何场合找到话题，和任何人聊成兄弟姐妹。你的朋友遍布五湖四海，但深夜独处时偶尔会想：这些人里有真朋友吗？",
+    colors: ["#00d2d3","#01a3a4"]
+  },
+  {
+    name: "佛系摸鱼大师",
+    emoji: "🐟",
+    minScore: 37,
+    maxScore: 44,
+    desc: "你已经超越了卷与不卷的二元对立。你不是不努力，你只是选择了更可持续的生活方式。你的摸鱼不是偷懒，是一种生活哲学。你能在老板的眼皮底下完成刚好够用的工作，然后准时下班享受人生。这不是摆烂，这是智慧。",
+    colors: ["#a29bfe","#6c5ce7"]
+  },
+  {
+    name: "精神内耗型哲学家",
+    emoji: "🌪️",
+    minScore: 45,
+    maxScore: 52,
+    desc: "你的大脑24小时不停运转，思考人生的意义、宇宙的起源、以及昨天说的那句话是不是不太合适。你内心戏丰富到可以自编自导一部80集连续剧。别人看你很安静，其实你的脑子里正在上演一场世界大战。建议：少想多做，或者多想但别当真。",
+    colors: ["#fd79a8","#e84393"]
+  },
+  {
+    name: "躺平艺术家",
+    emoji: "🛋️",
+    minScore: 53,
+    maxScore: 60,
+    desc: "你把躺平发展成了一门艺术。你不是懒，你只是重新定义了"成功"的含义。在一个人人内卷的时代，你用躺平来对抗荒谬，用摆烂来消解焦虑。你的人生信条是：既然卷不过，那就躺得漂亮。你是当代犬儒主义的实践者，是消费主义的抵抗者，是……算了不说了，躺着说太累。",
+    colors: ["#636e72","#2d3436"]
+  },
+  {
+    name: "混沌型自由灵魂",
+    emoji: "🌊",
+    minScore: 61,
+    maxScore: 80,
+    desc: "你的人生没有剧本，没有计划，没有套路。你活在当下，以一种近乎野性的方式与世界互动。你的房间是混沌理论的实体展示，你的时间管理是薛定谔的猫。你可能不成功，但你一定不无聊。在这个被规则和框架束缚的世界里，你是最后的自由人（也可能是最后的迷路者）。",
+    colors: ["#74b9ff","#0984e3"]
+  }
+];
+
+const dimNames = ["执行力","社交力","松弛感","叛逆值"];
+
+// ===== STATE =====
+let currentQ = 0;
+let answers = [];
+let dimScores = [0, 0, 0, 0]; // 执行力, 社交力, 松弛感, 叛逆值
+
+// ===== NAVIGATION =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+document.getElementById('startBtn').onclick = () => {
+  currentQ = 0;
+  answers = [];
+  dimScores = [0, 0, 0, 0];
+  showScreen('test');
+  renderQuestion();
+};
+
+document.getElementById('backBtn').onclick = () => showScreen('intro');
+document.getElementById('restartBtn').onclick = () => {
+  currentQ = 0;
+  answers = [];
+  dimScores = [0, 0, 0, 0];
+  showScreen('test');
+  renderQuestion();
+};
+
+// ===== RENDER =====
+function renderQuestion() {
+  const q = questions[currentQ];
+  const area = document.getElementById('questionArea');
+  const progress = ((currentQ) / questions.length * 100);
+  
+  document.getElementById('progressFill').style.width = progress + '%';
+  document.getElementById('progressText').textContent = `${currentQ + 1} / ${questions.length}`;
+  
+  let html = `<div class="question-card">
+    <div class="q-number">第 ${currentQ + 1} 题</div>
+    <div class="q-text">${q.q}</div>
+    <div class="options">`;
+  
+  q.opts.forEach((opt, i) => {
+    const selected = answers[currentQ] === i ? 'selected' : '';
+    html += `<div class="option ${selected}" data-idx="${i}" onclick="selectOption(${i})">${String.fromCharCode(65 + i)}. ${opt}</div>`;
+  });
+  
+  html += `</div></div>`;
+  area.innerHTML = html;
+  
+  // Show/hide submit button
+  document.getElementById('submitBtn').style.display = answers.length === questions.length ? 'inline-block' : 'none';
+  document.getElementById('hint').style.display = answers.length === questions.length ? 'none' : 'block';
+}
+
+function selectOption(idx) {
+  answers[currentQ] = idx;
+  
+  // Update UI
+  document.querySelectorAll('.option').forEach((el, i) => {
+    el.classList.toggle('selected', i === idx);
+  });
+  
+  // Auto advance after short delay
+  setTimeout(() => {
+    if (currentQ < questions.length - 1) {
+      currentQ++;
+      renderQuestion();
+    } else {
+      // All answered
+      document.getElementById('submitBtn').style.display = 'inline-block';
+      document.getElementById('hint').style.display = 'none';
+    }
+  }, 300);
+}
+
+// ===== SUBMIT =====
+document.getElementById('submitBtn').onclick = calculateResult;
+
+function calculateResult() {
+  // Reset dims
+  dimScores = [0, 0, 0, 0];
+  
+  // Calculate dimension scores
+  answers.forEach((ans, qi) => {
+    const dims = questions[qi].dims[ans];
+    dims.forEach(d => {
+      dimScores[d] += 1;
+    });
+  });
+  
+  // Normalize to 0-100 scale
+  const maxPossible = questions.length * 2; // rough max per dimension
+  const normalized = dimScores.map(s => Math.min(100, Math.round(s / maxPossible * 100)));
+  
+  // Determine type based on score distribution
+  const totalScore = dimScores.reduce((a, b) => a + b, 0);
+  
+  let type;
+  if (totalScore <= 12) type = types[0];
+  else if (totalScore <= 20) type = types[1];
+  else if (totalScore <= 28) type = types[2];
+  else if (totalScore <= 36) type = types[3];
+  else if (totalScore <= 44) type = types[4];
+  else if (totalScore <= 52) type = types[5];
+  else if (totalScore <= 60) type = types[6];
+  else type = types[7];
+  
+  // Calculate match % (based on how concentrated the scores are)
+  const maxDim = Math.max(...dimScores);
+  const match = Math.min(99, Math.max(65, Math.round(50 + (maxDim / (totalScore || 1)) * 50)));
+  
+  // Render result
+  document.getElementById('resultEmoji').textContent = type.emoji;
+  document.getElementById('resultType').textContent = type.name;
+  document.getElementById('resultMatch').textContent = `匹配度 ${match}%`;
+  document.getElementById('resultDesc').textContent = type.desc;
+  
+  // Render dimension bars
+  const dimList = document.getElementById('dimList');
+  dimList.innerHTML = '';
+  const dimColors = ['#e94560','#f5c518','#00d2d3','#a29bfe'];
+  
+  dimNames.forEach((name, i) => {
+    const val = normalized[i];
+    dimList.innerHTML += `
+      <div class="dim-item">
+        <div class="dim-label">${name}</div>
+        <div class="dim-bar">
+          <div class="dim-fill" style="width:${val}%;background:${dimColors[i]}"></div>
+        </div>
+        <div class="dim-val">${val}</div>
+      </div>`;
+  });
+  
+  showScreen('result');
+}
+
+// ===== COPY RESULT =====
+document.getElementById('copyBtn').onclick = () => {
+  const type = document.getElementById('resultType').textContent;
+  const match = document.getElementById('resultMatch').textContent;
+  const emoji = document.getElementById('resultEmoji').textContent;
+  const text = `🎭 当代人生存人格测试结果\n\n${emoji} ${type}\n${match}\n\n👉 测试链接：${window.location.href}`;
+  
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✅ 已复制！';
+    setTimeout(() => btn.textContent = '📋 复制结果', 2000);
+  });
+};
+</script>
+
+</body>
+</html>
