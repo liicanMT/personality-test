@@ -34,7 +34,6 @@
       width: 100%;
     }
     
-    /* ===== INTRO ===== */
     #intro {
       justify-content: center;
       align-items: center;
@@ -101,10 +100,8 @@
     }
     
     .btn-small:hover { border-color: var(--accent); color: var(--accent); }
-    .btn-small:disabled { opacity: 0.3; cursor: not-allowed; }
-    .btn-small:disabled:hover { border-color: #333; color: var(--text2); }
+    .btn-small:disabled { opacity: 0.3; cursor: not-allowed; border-color: #333; color: var(--text2); }
     
-    /* ===== TEST ===== */
     .topbar {
       position: sticky;
       top: 0;
@@ -165,14 +162,11 @@
     }
     
     .option:hover { border-color: var(--accent); background: #1a1a3e; }
-    
     .option.selected { border-color: var(--accent); background: rgba(233,69,96,0.15); }
     
     .actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
-    
     .hint { text-align: center; color: var(--text2); font-size: 0.85rem; margin-top: 16px; }
     
-    /* ===== RESULT ===== */
     #result { background: linear-gradient(180deg, #0f0f1a 0%, #16213e 100%); }
     
     .result-card {
@@ -184,7 +178,6 @@
     }
     
     .result-emoji { font-size: 72px; margin-bottom: 16px; }
-    
     .result-label { font-size: 0.85rem; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 2px; }
     
     .result-type {
@@ -236,7 +229,6 @@
       margin-bottom: 6px;
     }
     
-    /* MBTI/SBTI 联动 */
     .linkage-section {
       margin: 20px 0;
       padding: 16px;
@@ -245,11 +237,7 @@
       border: 1px solid #0f3460;
     }
     
-    .linkage-section h3 {
-      font-size: 0.95rem;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
+    .linkage-section h3 { font-size: 0.95rem; color: var(--accent); margin-bottom: 12px; }
     
     .linkage-grid {
       display: grid;
@@ -264,17 +252,8 @@
       text-align: left;
     }
     
-    .linkage-item .label {
-      font-size: 0.75rem;
-      color: var(--text2);
-      margin-bottom: 4px;
-    }
-    
-    .linkage-item .value {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text);
-    }
+    .linkage-item .label { font-size: 0.75rem; color: var(--text2); margin-bottom: 4px; }
+    .linkage-item .value { font-size: 1rem; font-weight: 700; color: var(--text); }
     
     .linkage-item .tag {
       display: inline-block;
@@ -355,7 +334,6 @@
 </head>
 <body>
 
-<!-- INTRO -->
 <section id="intro" class="screen active">
   <div class="hero-emoji">🎭</div>
   <h1 class="hero-title">当代人生存人格测试</h1>
@@ -367,7 +345,6 @@
   <p style="color:#555; font-size:0.75rem; margin-top:20px;">本测试仅供娱乐，切勿对号入座到走火入魔</p>
 </section>
 
-<!-- TEST -->
 <section id="test" class="screen">
   <div class="container">
     <div class="topbar">
@@ -384,7 +361,6 @@
   </div>
 </section>
 
-<!-- RESULT -->
 <section id="result" class="screen">
   <div class="container">
     <div class="result-card">
@@ -433,207 +409,190 @@
 </section>
 
 <script>
-// ===== DATA =====
+// ===== 题目数据 =====
+// 每题4个选项，每个选项包含：维度加分 + 选项文本
+// 维度：0=执行力, 1=社交力, 2=松弛感, 3=叛逆值
+// A选项加1分，B加2分，C加3分，D加4分 → 总分范围20-80
 const questions = [
   {
     q: "周末早上10点，你通常处于什么状态？",
     opts: [
-      "已经起床并完成了三项任务，人生不等人",
-      "刚醒，正在床上刷手机刷到宇宙爆炸",
-      "醒了但选择闭眼，假装自己还在睡",
-      "？周末是什么，我不是全年无休吗"
-    ],
-    dims: [[0,2],[1,3],[2,3],[3,1]]
+      {text:"已经起床并完成了三项任务", dims:[0]},
+      {text:"刚醒，正在床上刷手机", dims:[0,2]},
+      {text:"醒了但选择闭眼继续睡", dims:[2,3]},
+      {text:"？周末是什么，我不是全年无休吗", dims:[0,1,3]}
+    ]
   },
   {
     q: "领导在群里发了一条消息，你的第一反应是？",
     opts: [
-      "秒回：收到！好的！没问题！",
-      "等别人先回，我看看风向再说",
-      "假装没看到，等私聊我再回",
-      "内心翻了个白眼，然后默默打字"
-    ],
-    dims: [[0,1],[1,3],[2,3],[3,2]]
+      {text:"秒回：收到！好的！没问题！", dims:[0]},
+      {text:"等别人先回，看看风向再说", dims:[1,2]},
+      {text:"假装没看到，等私聊再回", dims:[2,3]},
+      {text:"内心翻个白眼，然后默默打字", dims:[1,3]}
+    ]
   },
   {
     q: "聚餐时你一般扮演什么角色？",
     opts: [
-      "组织者，从选餐厅到催付款一条龙",
-      "气氛组，负责讲段子和带动节奏",
-      "安静干饭型，偶尔附和两句",
-      "社恐角落型，希望不要有人注意到我"
-    ],
-    dims: [[0,1],[1,2],[2,3],[3,3]]
+      {text:"组织者，从选餐厅到催付款一条龙", dims:[0,1]},
+      {text:"气氛组，负责讲段子带动节奏", dims:[1]},
+      {text:"安静干饭型，偶尔附和两句", dims:[2]},
+      {text:"社恐角落型，希望没人注意到我", dims:[2,3]}
+    ]
   },
   {
     q: "你手机里最多的App类型是？",
     opts: [
-      "效率工具类：日历、待办、笔记、番茄钟",
-      "社交媒体类：微博、小红书、抖音、B站",
-      "游戏类：别问，问就是全都要",
-      "金融理财类：基金、股票、记账…虽然也没赚"
-    ],
-    dims: [[0,1],[1,2],[2,3],[3,1]]
+      {text:"效率工具类：日历、待办、笔记、番茄钟", dims:[0]},
+      {text:"社交媒体类：微博、小红书、抖音、B站", dims:[1]},
+      {text:"游戏类：别问，问就是全都要", dims:[2,3]},
+      {text:"金融理财类：基金、股票、记账…虽然也没赚", dims:[0,3]}
+    ]
   },
   {
     q: "面对一个deadline，你的策略是？",
     opts: [
-      "提前完成，享受deadline前的悠闲时光",
-      "稳步推进，但最后一天会爆发出惊人效率",
-      "deadline是第一生产力，最后3小时创造奇迹",
-      "什么deadline？我选择性遗忘"
-    ],
-    dims: [[0,1],[1,2],[2,3],[3,3]]
+      {text:"提前完成，享受deadline前的悠闲时光", dims:[0]},
+      {text:"稳步推进，最后一天爆发出惊人效率", dims:[0,2]},
+      {text:"deadline是第一生产力，最后3小时创造奇迹", dims:[2,3]},
+      {text:"什么deadline？我选择性遗忘", dims:[3]}
+    ]
   },
   {
     q: "你对「躺平」这个词的态度是？",
     opts: [
-      "不认同，人生就是要奋斗",
-      "嘴上说躺平，身体很诚实地上进",
-      "间歇性躺平，持续性焦虑",
-      "已经躺平，而且躺出了专业水平"
-    ],
-    dims: [[0,1],[1,2],[2,3],[3,3]]
+      {text:"不认同，人生就是要奋斗", dims:[0]},
+      {text:"嘴上说躺平，身体很诚实地卷", dims:[0,1]},
+      {text:"间歇性躺平，持续性焦虑", dims:[1,2]},
+      {text:"已经躺平，而且躺出了专业水平", dims:[2,3]}
+    ]
   },
   {
     q: "朋友突然约你出门，你会？",
     opts: [
-      "好啊！马上！等我换衣服！",
-      "先问去哪、见谁、干什么，再决定",
-      "找借口拒绝，但在家后悔了一整天",
-      "直接拒绝，然后继续做自己的事，毫无波澜"
-    ],
-    dims: [[0,2],[1,2],[2,3],[3,3]]
+      {text:"好啊！马上！等我换衣服！", dims:[1]},
+      {text:"先问去哪、见谁、干什么，再决定", dims:[0,2]},
+      {text:"找借口拒绝，但在家后悔了一整天", dims:[2,3]},
+      {text:"直接拒绝，继续做自己的事，毫无波澜", dims:[2,3]}
+    ]
   },
   {
     q: "你最怕听到的一句话是？",
     opts: [
-      "「你很有潜力，要更努力哦」",
-      "这个需求很简单，很快就能做好",
-      "「我们开个短会」",
-      "「你最近是不是胖了」"
-    ],
-    dims: [[0,1],[1,2],[2,2],[3,3]]
+      {text:"「你很有潜力，要更努力哦」", dims:[0]},
+      {text:"「这个需求很简单，很快就能做好」", dims:[0,1]},
+      {text:"「我们开个短会」", dims:[2,3]},
+      {text:"「你最近是不是胖了」", dims:[1,3]}
+    ]
   },
   {
     q: "深夜12点你在做什么？",
     opts: [
-      "已经入睡，作息规律得像个退休干部",
-      "在做白天没做完的工作或学习",
-      "刷手机/看剧/打游戏，但内心充满愧疚",
-      "刷手机/看剧/打游戏，毫无愧疚，快乐似神仙"
-    ],
-    dims: [[0,1],[1,1],[2,2],[3,3]]
+      {text:"已经入睡，作息规律得像个退休干部", dims:[0]},
+      {text:"在做白天没做完的工作或学习", dims:[0]},
+      {text:"刷手机/看剧，但内心充满愧疚", dims:[1,2]},
+      {text:"刷手机/看剧，毫无愧疚，快乐似神仙", dims:[2,3]}
+    ]
   },
   {
     q: "你对「内卷」的态度是？",
     opts: [
-      "主动卷，而且卷出了心得和方法论",
-      "被动卷，不卷就会被淘汰啊",
-      "反卷斗士，用行动抵抗不正之风",
-      "已经超越了卷与不卷的境界"
-    ],
-    dims: [[0,1],[1,2],[2,2],[3,3]]
+      {text:"主动卷，而且卷出了心得和方法论", dims:[0]},
+      {text:"被动卷，不卷就会被淘汰啊", dims:[0,1]},
+      {text:"反卷斗士，用行动抵抗不正之风", dims:[1,3]},
+      {text:"已经超越了卷与不卷的境界", dims:[2,3]}
+    ]
   },
   {
     q: "你发朋友圈/社交媒体的频率是？",
     opts: [
-      "每天至少一条，记录生活的每个瞬间",
-      "一周几条，精心编辑配图和文案",
-      "几个月一条，偶尔冒泡证明还活着",
-      "从不发，我的生活不需要观众"
-    ],
-    dims: [[0,2],[1,2],[2,3],[3,3]]
+      {text:"每天至少一条，记录生活的每个瞬间", dims:[1]},
+      {text:"一周几条，精心编辑配图和文案", dims:[0,1]},
+      {text:"几个月一条，偶尔冒泡证明还活着", dims:[2]},
+      {text:"从不发，我的生活不需要观众", dims:[2,3]}
+    ]
   },
   {
     q: "面对一个你不喜欢但有用的人，你会？",
     opts: [
-      "主动社交，建立互惠关系",
-      "保持礼貌但有距离的互动",
-      "能不接触就不接触，有用的消息线上解决",
-      "直接无视，我的精神内耗已经够多了"
-    ],
-    dims: [[0,1],[1,2],[2,3],[3,3]]
+      {text:"主动社交，建立互惠关系", dims:[0,1]},
+      {text:"保持礼貌但有距离的互动", dims:[0,2]},
+      {text:"能不接触就不接触，线上解决", dims:[2]},
+      {text:"直接无视，我的精神内耗已经够多了", dims:[3]}
+    ]
   },
   {
     q: "你的消费观最接近哪个？",
     opts: [
-      "精打每一分钱，该省省该花花",
-      "冲动消费型，买完后悔，后悔完继续买",
-      "佛系消费，需要就买，不需要就不买",
-      "极简主义，能不买就不买"
-    ],
-    dims: [[0,1],[1,3],[2,2],[3,2]]
+      {text:"精打每一分钱，该省省该花花", dims:[0]},
+      {text:"冲动消费型，买完后悔，后悔完继续买", dims:[1,3]},
+      {text:"佛系消费，需要就买，不需要就不买", dims:[2]},
+      {text:"极简主义，能不买就不买", dims:[2,3]}
+    ]
   },
   {
     q: "你学习新技能的主要动力是？",
     opts: [
-      "提升自己，为未来做准备",
-      "工作/生活需要，不得不学",
-      "纯粹因为好奇和热爱",
-      "学什么新技能？我选择原地踏步"
-    ],
-    dims: [[0,1],[1,2],[2,2],[3,3]]
+      {text:"提升自己，为未来做准备", dims:[0]},
+      {text:"工作/生活需要，不得不学", dims:[0,1]},
+      {text:"纯粹因为好奇和热爱", dims:[1,2]},
+      {text:"学什么新技能？我选择原地踏步", dims:[2,3]}
+    ]
   },
   {
     q: "面对网络上的杠精，你会？",
     opts: [
-      "理性辩论，用事实和逻辑说服对方",
-      "拉黑/无视，不浪费一秒钟",
-      "忍不住下场互怼，虽然知道没意义",
-      "围观吃瓜，偶尔插一句拱火"
-    ],
-    dims: [[0,1],[1,2],[2,3],[3,2]]
+      {text:"理性辩论，用事实和逻辑说服对方", dims:[0,1]},
+      {text:"拉黑/无视，不浪费一秒钟", dims:[2]},
+      {text:"忍不住下场互怼，虽然知道没意义", dims:[1,3]},
+      {text:"围观吃瓜，偶尔插一句拱火", dims:[2,3]}
+    ]
   },
   {
     q: "你的房间/桌面现在是什么状态？",
     opts: [
-      "整洁到可以随时拍家居杂志",
-      "有秩序的混乱，我知道每样东西在哪",
-      "乱但不想收拾，等忍不了再说",
-      "已经和杂物达成了共生关系"
-    ],
-    dims: [[0,1],[1,2],[2,3],[3,3]]
+      {text:"整洁到可以随时拍家居杂志", dims:[0]},
+      {text:"有秩序的混乱，我知道每样东西在哪", dims:[0,2]},
+      {text:"乱但不想收拾，等忍不了再说", dims:[2,3]},
+      {text:"已经和杂物达成了共生关系", dims:[3]}
+    ]
   },
   {
     q: "你对未来的规划有多清晰？",
     opts: [
-      "有详细的五年计划和年度目标",
-      "有个大概方向，具体再说",
-      "走一步看一步，计划赶不上变化",
-      "未来？我连明天吃什么都没想好"
-    ],
-    dims: [[0,1],[1,2],[2,3],[3,3]]
+      {text:"有详细的五年计划和年度目标", dims:[0]},
+      {text:"有个大概方向，具体再说", dims:[0,2]},
+      {text:"走一步看一步，计划赶不上变化", dims:[2,3]},
+      {text:"未来？我连明天吃什么都没想好", dims:[3]}
+    ]
   },
   {
     q: "工作中最让你崩溃的是？",
     opts: [
-      "需求反复变更，做了又改改了又做",
-      "开会开会开会，无意义的会",
-      "同事甩锅/不配合/沟通困难",
-      "以上全部，以及更多"
-    ],
-    dims: [[0,1],[1,2],[2,2],[3,3]]
+      {text:"需求反复变更，做了又改改了又做", dims:[0,3]},
+      {text:"开会开会开会，无意义的会", dims:[2,3]},
+      {text:"同事甩锅/不配合/沟通困难", dims:[1,3]},
+      {text:"以上全部，以及更多", dims:[3]}
+    ]
   },
   {
     q: "你最认同的一句话是？",
     opts: [
-      "「努力不一定成功，但不努力一定很轻松」",
-      "人生苦短，及时行乐",
-      "「只要我不努力，别人就卷不过我」",
-      "「间歇性踌躇满志，持续性混吃等死」"
-    ],
-    dims: [[0,1],[1,2],[2,3],[3,3]]
+      {text:"「努力不一定成功，但不努力一定很轻松」", dims:[0,2]},
+      {text:"人生苦短，及时行乐", dims:[2]},
+      {text:"「只要我不努力，别人就卷不过我」", dims:[2,3]},
+      {text:"「间歇性踌躇满志，持续性混吃等死」", dims:[2,3]}
+    ]
   },
   {
     q: "如果明天不用上班/上学，你会？",
     opts: [
-      "安排满满的行程，充分利用每一小时",
-      "做一直想做但没时间做的事",
-      "睡到自然醒，然后随机应变",
-      "躺着，什么都不做，享受虚无"
-    ],
-    dims: [[0,1],[1,2],[2,3],[3,3]]
+      {text:"安排满满的行程，充分利用每一小时", dims:[0]},
+      {text:"做一直想做但没时间做的事", dims:[0,1]},
+      {text:"睡到自然醒，然后随机应变", dims:[2]},
+      {text:"躺着，什么都不做，享受虚无", dims:[2,3]}
+    ]
   }
 ];
 
@@ -641,109 +600,83 @@ const types = [
   {
     name: "永动机型打工人",
     emoji: "⚡",
-    minScore: 0,
-    maxScore: 12,
+    min: 20, max: 30,
     desc: "你的人生字典里没有「休息」两个字。你的日程表比CEO还满，你的效率让周围人自愧不如。你不是在工作，就是在去工作的路上，或者在工作的路上思考工作。你的待办清单比你的头发还多，而你居然都能完成。同事看到你凌晨3点还在群里发消息，以为你疯了，其实你只是觉得那个bug不修好睡不着。",
     fun: "你就是那种「周末是什么？能吃吗？」的人。你的闹钟设了三个，但其实第一个响之前你就已经醒了。你的手机屏幕使用时间报告让你的手机都感到窒息。如果内卷有奥运金牌，你已经拿大满贯了。但说真的，偶尔休息一下吧，地球不会因为你休息一天就停止转的……大概。",
-    mbti: "ESTJ",
-    mbtiName: "总经理型",
-    sbti: "CTRL",
-    sbtiName: "拿捏者"
+    mbti: "ESTJ", mbtiName: "总经理型",
+    sbti: "CTRL", sbtiName: "拿捏者"
   },
   {
     name: "精致利己主义者",
     emoji: "🎯",
-    minScore: 13,
-    maxScore: 20,
+    min: 31, max: 38,
     desc: "你深谙社会生存法则，知道什么时候该表现，什么时候该隐藏。你的人际关系是精心计算的投资组合，你的每一步都有明确的目的。别人觉得你很会来事，但你只是不想浪费任何一次有效社交。你参加的每一个饭局都有明确的目的，你加的每一个微信都有潜在的价值。",
     fun: "你就是那种「这个认识一下，以后可能有用」的社交达人。你的通讯录比百科全书还厚，但真正能打电话借钱的可能就一两个。你的人生格言是：人脉就是钱脉，所以你的人脉管理比基金经理还专业。你不是功利，你只是「战略性社交」。",
-    mbti: "ENTJ",
-    mbtiName: "指挥官型",
-    sbti: "CTRL",
-    sbtiName: "拿捏者"
+    mbti: "ENTJ", mbtiName: "指挥官型",
+    sbti: "CTRL", sbtiName: "拿捏者"
   },
   {
     name: "人间清醒型选手",
     emoji: "🧠",
-    minScore: 21,
-    maxScore: 28,
+    min: 39, max: 46,
     desc: "你看透了这个世界的运行规则，但选择保持体面。你知道卷没意义但还是会适度卷，知道躺平很爽但不敢真躺。你活在理想和现实的夹缝中，用理性维持着微妙的平衡。你是朋友圈里最靠谱的人，也是深夜最焦虑的人。你发的每一条朋友圈都经过了至少三轮审核。",
     fun: "你就是那种「我知道这没意义，但我还是要做」的矛盾体。你一边骂内卷一边偷偷努力，一边说减肥一边点奶茶。你的收藏夹里有300篇「如何自律」的文章，但你一篇都没看完。你是当代最拧巴的一群人，但也是最真实的一群人。",
-    mbti: "INTJ",
-    mbtiName: "建筑师型",
-    sbti: "PHNX",
-    sbtiName: "凤凰型"
+    mbti: "INTJ", mbtiName: "建筑师型",
+    sbti: "PHNX", sbtiName: "凤凰型"
   },
   {
     name: "社交恐怖分子",
     emoji: "🎪",
-    minScore: 29,
-    maxScore: 36,
+    min: 47, max: 54,
     desc: "你的社交能量是核反应堆级别的。你认识的人比WiFi连接的设备还多，你的群聊消息永远99+。你可以在任何场合找到话题，和任何人聊成兄弟姐妹。你的人生信条是：没有破不了的冰，只有不够热情的人。你是所有聚会的灵魂人物，也是所有社恐的噩梦。",
     fun: "你就是那种「诶你也是xx的？我也认识xx！」的连接器。你的微信好友数量可能比你的存款数字还好看。你的朋友圈评论比原帖还长。你的社交能力已经超越了语言——你用眼神就能和陌生人建立友谊。但深夜独处时偶尔会想：这些人里有真朋友吗？算了不想了，先去参加个派对。",
-    mbti: "ENFP",
-    mbtiName: "竞选者型",
-    sbti: "VIBE",
-    sbtiName: "氛围组型"
+    mbti: "ENFP", mbtiName: "竞选者型",
+    sbti: "VIBE", sbtiName: "氛围组型"
   },
   {
     name: "佛系摸鱼大师",
     emoji: "🐟",
-    minScore: 37,
-    maxScore: 44,
+    min: 55, max: 62,
     desc: "你已经超越了卷与不卷的二元对立。你不是不努力，你只是选择了更可持续的生活方式。你的摸鱼不是偷懒，是一种生活哲学。你能在老板的眼皮底下完成刚好够用的工作，然后准时下班享受人生。你的工作和生活平衡得像太极图一样和谐。",
     fun: "你就是那种「我摸的不是鱼，是人生」的哲学家。你的浏览器永远开着两个窗口：一个是工作，一个是摸鱼。你能在3秒内把摸鱼页面切换成工作页面，这个技能比你的专业技能还熟练。你不是懒，你只是深谙「二八定律」——用20%的精力完成80%的工作。剩下的80%精力？用来思考人生。",
-    mbti: "ISFP",
-    mbtiName: "探险家型",
-    sbti: "CHILL",
-    sbtiName: "躺赢型"
+    mbti: "ISFP", mbtiName: "探险家型",
+    sbti: "CHILL", sbtiName: "躺赢型"
   },
   {
     name: "精神内耗型哲学家",
     emoji: "🌪️",
-    minScore: 45,
-    maxScore: 52,
+    min: 63, max: 70,
     desc: "你的大脑24小时不停运转，思考人生的意义、宇宙的起源、以及昨天说的那句话是不是不太合适。你内心戏丰富到可以自编自导一部80集连续剧。别人看你很安静，其实你的脑子里正在上演一场世界大战。你发一条朋友圈要纠结半小时，发完之后每隔5分钟检查一次点赞数。",
-    fun: "你就是那种「算了不想了」之后又想了三个小时的人。你的脑子里有一个24小时运转的弹幕机，上面飘过的全是「我刚才是不是说错话了」「他是不是在内涵我」「我是不是应该换个活法」。你的焦虑已经形成了一个闭环：焦虑自己焦虑→因为焦虑而焦虑→无限循环。建议：少想多做，或者多想但别当真。或者…先想想该用什么建议。",
-    mbti: "INFJ",
-    mbtiName: "提倡者型",
-    sbti: "OCDR",
-    sbtiName: "纠结型"
+    fun: "你就是那种「算了不想了」之后又想了三个小时的人。你的脑子里有一个24小时运转的弹幕机，上面飘过的全是「我刚才是不是说错话了」「他是不是在内涵我」「我是不是应该换个活法」。你的焦虑已经形成了一个闭环：焦虑自己焦虑→因为焦虑而焦虑→无限循环。建议：少想多做，或者多想但别当真。",
+    mbti: "INFJ", mbtiName: "提倡者型",
+    sbti: "OCDR", sbtiName: "纠结型"
   },
   {
     name: "躺平艺术家",
     emoji: "🛋️",
-    minScore: 53,
-    maxScore: 60,
+    min: 71, max: 76,
     desc: "你把躺平发展成了一门艺术。你不是懒，你只是重新定义了「成功」的含义。在一个人人内卷的时代，你用躺平来对抗荒谬，用摆烂来消解焦虑。你的人生信条是：既然卷不过，那就躺得漂亮。你是当代犬儒主义的实践者，是消费主义的抵抗者。",
     fun: "你就是那种「我不是在躺平，我是在进行水平方向的人生探索」的诗人。你的床是你最忠实的朋友，你的沙发是你最亲密的伙伴。你的人生目标已经从「改变世界」降级到「今天外卖准时到」。你不是没有梦想，你的梦想就是不用上班。你不是社畜，你是「自由职业者」——自由地选择躺着的职业。",
-    mbti: "INTP",
-    mbtiName: "逻辑学家型",
-    sbti: "LAZE",
-    sbtiName: "摆烂型"
+    mbti: "INTP", mbtiName: "逻辑学家型",
+    sbti: "LAZE", sbtiName: "摆烂型"
   },
   {
     name: "混沌型自由灵魂",
     emoji: "🌊",
-    minScore: 61,
-    maxScore: 80,
+    min: 77, max: 80,
     desc: "你的人生没有剧本，没有计划，没有套路。你活在当下，以一种近乎野性的方式与世界互动。你的房间是混沌理论的实体展示，你的时间管理是薛定谔的猫。你可能不成功，但你一定不无聊。在这个被规则和框架束缚的世界里，你是最后的自由人。",
-    fun: "你就是那种「计划是什么？能吃吗？」的野生人类。你的人生就像一场即兴表演——没有剧本，没有彩排，全靠临场发挥。你的房间像是被龙卷风扫过，但你居然能在里面找到任何东西。你的时间观念是弹性的——你说的「马上」可能是5分钟也可能是5小时。你是混乱的，但也是自由的。在这个人人活在Excel表格里的时代，你活成了一首诗。",
-    mbti: "ENTP",
-    mbtiName: "辩论家型",
-    sbti: "CHAOS",
-    sbtiName: "混沌型"
+    fun: "你就是那种「计划是什么？能吃吗？」的野生人类。你的人生就像一场即兴表演——没有剧本，没有彩排，全靠临场发挥。你的房间像是被龙卷风扫过，但你居然能在里面找到任何东西。你的时间观念是弹性的——你说的「马上」可能是5分钟也可能是5小时。你是混乱的，但也是自由的。",
+    mbti: "ENTP", mbtiName: "辩论家型",
+    sbti: "CHAOS", sbtiName: "混沌型"
   }
 ];
 
 const dimNames = ["执行力","社交力","松弛感","叛逆值"];
+const dimColors = ['#e94560','#f5c518','#00d2d3','#a29bfe'];
 
-// ===== STATE =====
 let currentQ = 0;
 let answers = [];
-let dimScores = [0, 0, 0, 0];
 
-// ===== NAVIGATION =====
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -753,7 +686,6 @@ function showScreen(id) {
 document.getElementById('startBtn').onclick = () => {
   currentQ = 0;
   answers = [];
-  dimScores = [0, 0, 0, 0];
   showScreen('test');
   renderQuestion();
 };
@@ -762,28 +694,20 @@ document.getElementById('backBtn').onclick = () => showScreen('intro');
 document.getElementById('restartBtn').onclick = () => {
   currentQ = 0;
   answers = [];
-  dimScores = [0, 0, 0, 0];
   showScreen('test');
   renderQuestion();
 };
 
 document.getElementById('prevBtn').onclick = () => {
-  if (currentQ > 0) {
-    currentQ--;
-    renderQuestion();
-  }
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
 };
 
-// ===== RENDER =====
 function renderQuestion() {
   const q = questions[currentQ];
-  const area = document.getElementById('questionArea');
-  const progress = ((currentQ) / questions.length * 100);
+  const progress = (currentQ / questions.length * 100);
   
   document.getElementById('progressFill').style.width = progress + '%';
   document.getElementById('progressText').textContent = `${currentQ + 1} / ${questions.length}`;
-  
-  // Update prev button state
   document.getElementById('prevBtn').disabled = currentQ === 0;
   
   let html = `<div class="question-card">
@@ -793,13 +717,12 @@ function renderQuestion() {
   
   q.opts.forEach((opt, i) => {
     const selected = answers[currentQ] === i ? 'selected' : '';
-    html += `<div class="option ${selected}" data-idx="${i}" onclick="selectOption(${i})">${String.fromCharCode(65 + i)}. ${opt}</div>`;
+    html += `<div class="option ${selected}" onclick="selectOption(${i})">${String.fromCharCode(65 + i)}. ${opt.text}</div>`;
   });
   
   html += `</div></div>`;
-  area.innerHTML = html;
+  document.getElementById('questionArea').innerHTML = html;
   
-  // Show/hide submit button
   const allAnswered = answers.filter(a => a !== undefined).length === questions.length;
   document.getElementById('submitBtn').style.display = allAnswered ? 'inline-block' : 'none';
   document.getElementById('hint').style.display = allAnswered ? 'none' : 'block';
@@ -807,7 +730,6 @@ function renderQuestion() {
 
 function selectOption(idx) {
   answers[currentQ] = idx;
-  
   document.querySelectorAll('.option').forEach((el, i) => {
     el.classList.toggle('selected', i === idx);
   });
@@ -824,35 +746,53 @@ function selectOption(idx) {
   }, 300);
 }
 
-// ===== SUBMIT =====
 document.getElementById('submitBtn').onclick = calculateResult;
 
 function calculateResult() {
-  dimScores = [0, 0, 0, 0];
+  const dimScores = [0, 0, 0, 0]; // 执行力, 社交力, 松弛感, 叛逆值
   
   answers.forEach((ans, qi) => {
     if (ans === undefined) return;
-    const dims = questions[qi].dims[ans];
-    dims.forEach(d => { dimScores[d] += 1; });
+    const opt = questions[qi].opts[ans];
+    opt.dims.forEach(d => { dimScores[d] += 1; });
   });
   
-  const maxPossible = questions.length * 2;
-  const normalized = dimScores.map(s => Math.min(100, Math.round(s / maxPossible * 100)));
+  // Normalize dimensions to 0-100
+  const maxDimScore = Math.max(...dimScores, 1);
+  const normalized = dimScores.map(s => Math.round(s / maxDimScore * 100));
   
-  const totalScore = dimScores.reduce((a, b) => a + b, 0);
+  // 按维度比例判定类型
+  const total = dimScores.reduce((a,b) => a+b, 0) || 1;
+  const ratios = dimScores.map(s => s / total); // [执行, 社交, 松弛, 叛逆]
   
   let type;
-  if (totalScore <= 12) type = types[0];
-  else if (totalScore <= 20) type = types[1];
-  else if (totalScore <= 28) type = types[2];
-  else if (totalScore <= 36) type = types[3];
-  else if (totalScore <= 44) type = types[4];
-  else if (totalScore <= 52) type = types[5];
-  else if (totalScore <= 60) type = types[6];
-  else type = types[7];
+  if (ratios[0] > 0.3 && ratios[1] > 0.25) {
+    type = types.find(t => t.name === "社交恐怖分子");
+  } else if (ratios[0] > 0.35) {
+    type = types.find(t => t.name === "永动机型打工人");
+  } else if (ratios[1] > 0.3) {
+    type = types.find(t => t.name === "精致利己主义者");
+  } else if (ratios[3] > 0.35 && ratios[2] > 0.2) {
+    type = types.find(t => t.name === "混沌型自由灵魂");
+  } else if (ratios[3] > 0.35) {
+    type = types.find(t => t.name === "精神内耗型哲学家");
+  } else if (ratios[2] > 0.35 && ratios[3] > 0.15) {
+    type = types.find(t => t.name === "躺平艺术家");
+  } else if (ratios[2] > 0.3) {
+    type = types.find(t => t.name === "佛系摸鱼大师");
+  } else if (ratios[0] > 0.25 && ratios[2] < 0.2) {
+    type = types.find(t => t.name === "人间清醒型选手");
+  } else {
+    // 模糊地带，按最大维度判断
+    const maxIdx = ratios.indexOf(Math.max(...ratios));
+    const fallback = ["人间清醒型选手","精致利己主义者","佛系摸鱼大师","精神内耗型哲学家"];
+    type = types.find(t => t.name === fallback[maxIdx]);
+  }
+  if (!type) type = types[types.length - 1];
   
-  const maxDim = Math.max(...dimScores);
-  const match = Math.min(99, Math.max(65, Math.round(50 + (maxDim / (totalScore || 1)) * 50)));
+  // Calculate match % based on dominant dimension ratio
+  const maxRatio = Math.max(...ratios);
+  const match = Math.min(99, Math.max(70, Math.round(50 + maxRatio * 80)));
   
   document.getElementById('resultEmoji').textContent = type.emoji;
   document.getElementById('resultType').textContent = type.name;
@@ -864,31 +804,20 @@ function calculateResult() {
   
   const dimList = document.getElementById('dimList');
   dimList.innerHTML = '';
-  const dimColors = ['#e94560','#f5c518','#00d2d3','#a29bfe'];
-  
   dimNames.forEach((name, i) => {
-    const val = normalized[i];
     dimList.innerHTML += `
       <div class="dim-item">
         <div class="dim-label">${name}</div>
-        <div class="dim-bar">
-          <div class="dim-fill" style="width:${val}%;background:${dimColors[i]}"></div>
-        </div>
-        <div class="dim-val">${val}</div>
+        <div class="dim-bar"><div class="dim-fill" style="width:${normalized[i]}%;background:${dimColors[i]}"></div></div>
+        <div class="dim-val">${normalized[i]}</div>
       </div>`;
   });
   
   showScreen('result');
 }
 
-// ===== COPY RESULT =====
 document.getElementById('copyBtn').onclick = () => {
-  const type = document.getElementById('resultType').textContent;
-  const match = document.getElementById('resultMatch').textContent;
-  const emoji = document.getElementById('resultEmoji').textContent;
-  const mbti = document.getElementById('mbtiType').textContent;
-  const sbti = document.getElementById('sbtiType').textContent;
-  const text = `🎭 当代人生存人格测试结果\n\n${emoji} ${type}\n${match}\n\nMBTI: ${mbti}\nSBTI: ${sbti}\n\n👉 测试链接：${window.location.href}`;
+  const text = `🎭 当代人生存人格测试结果\n\n${document.getElementById('resultEmoji').textContent} ${document.getElementById('resultType').textContent}\n${document.getElementById('resultMatch').textContent}\n\nMBTI: ${document.getElementById('mbtiType').textContent}\nSBTI: ${document.getElementById('sbtiType').textContent}\n\n👉 测试链接：${window.location.href}`;
   
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.getElementById('copyBtn');
