@@ -89,6 +89,21 @@
     
     .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
     
+    .btn-small {
+      background: transparent;
+      color: var(--text2);
+      border: 1px solid #333;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-small:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-small:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-small:disabled:hover { border-color: #333; color: var(--text2); }
+    
     /* ===== TEST ===== */
     .topbar {
       position: sticky;
@@ -197,9 +212,80 @@
       color: var(--text2);
       line-height: 1.7;
       font-size: 0.95rem;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
       text-align: left;
     }
+    
+    .result-fun {
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      text-align: left;
+      padding: 16px;
+      background: rgba(245,197,24,0.05);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+    }
+    
+    .result-fun::before {
+      content: "💬 说人话版：";
+      display: block;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    
+    /* MBTI/SBTI 联动 */
+    .linkage-section {
+      margin: 20px 0;
+      padding: 16px;
+      background: rgba(15,52,96,0.3);
+      border-radius: 12px;
+      border: 1px solid #0f3460;
+    }
+    
+    .linkage-section h3 {
+      font-size: 0.95rem;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    
+    .linkage-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    .linkage-item {
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: left;
+    }
+    
+    .linkage-item .label {
+      font-size: 0.75rem;
+      color: var(--text2);
+      margin-bottom: 4px;
+    }
+    
+    .linkage-item .value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    .linkage-item .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 4px;
+    }
+    
+    .tag-mbti { background: rgba(233,69,96,0.2); color: var(--accent); }
+    .tag-sbti { background: rgba(245,197,24,0.2); color: var(--gold); }
     
     .dim-section { margin-bottom: 28px; }
     .dim-section h3 { font-size: 1rem; margin-bottom: 16px; color: var(--gold); }
@@ -263,6 +349,7 @@
       .hero-title { font-size: 1.5rem; }
       .hero-emoji { font-size: 60px; }
       .result-type { font-size: 1.4rem; }
+      .linkage-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -289,6 +376,7 @@
     </div>
     <div id="questionArea"></div>
     <div class="actions">
+      <button class="btn-small" id="prevBtn" disabled>← 上一题</button>
       <button class="btn-secondary" id="backBtn">返回首页</button>
       <button class="btn-primary" id="submitBtn" style="display:none;">查看结果</button>
     </div>
@@ -305,6 +393,23 @@
       <div class="result-type" id="resultType"></div>
       <div class="result-match" id="resultMatch"></div>
       <div class="result-desc" id="resultDesc"></div>
+      <div class="result-fun" id="resultFun"></div>
+      
+      <div class="linkage-section">
+        <h3>🔗 你的人格在其他测试里大概是…</h3>
+        <div class="linkage-grid">
+          <div class="linkage-item">
+            <div class="label">MBTI 大概率是</div>
+            <div class="value" id="mbtiType"></div>
+            <span class="tag tag-mbti">MBTI 16型人格</span>
+          </div>
+          <div class="linkage-item">
+            <div class="label">SBTI 大概率是</div>
+            <div class="value" id="sbtiType"></div>
+            <span class="tag tag-sbti">SBTI 当代人格</span>
+          </div>
+        </div>
+      </div>
       
       <div class="dim-section">
         <h3>📊 人格维度雷达</h3>
@@ -404,7 +509,7 @@ const questions = [
     q: "你最怕听到的一句话是？",
     opts: [
       "「你很有潜力，要更努力哦」",
-      "「这个需求很简单，很快就能做好」",
+      "这个需求很简单，很快就能做好",
       "「我们开个短会」",
       "「你最近是不是胖了」"
     ],
@@ -514,7 +619,7 @@ const questions = [
     q: "你最认同的一句话是？",
     opts: [
       "「努力不一定成功，但不努力一定很轻松」",
-      "「人生苦短，及时行乐」",
+      "人生苦短，及时行乐",
       "「只要我不努力，别人就卷不过我」",
       "「间歇性踌躇满志，持续性混吃等死」"
     ],
@@ -538,64 +643,96 @@ const types = [
     emoji: "⚡",
     minScore: 0,
     maxScore: 12,
-    desc: "你的人生字典里没有「休息」两个字。你的日程表比CEO还满，你的效率让周围人自愧不如。你不是在工作，就是在去工作的路上，或者在工作的路上思考工作。建议：偶尔停下来，看看天空，你会发现天空也在卷你。",
-    colors: ["#e94560","#ff6b6b"]
+    desc: "你的人生字典里没有「休息」两个字。你的日程表比CEO还满，你的效率让周围人自愧不如。你不是在工作，就是在去工作的路上，或者在工作的路上思考工作。你的待办清单比你的头发还多，而你居然都能完成。同事看到你凌晨3点还在群里发消息，以为你疯了，其实你只是觉得那个bug不修好睡不着。",
+    fun: "你就是那种「周末是什么？能吃吗？」的人。你的闹钟设了三个，但其实第一个响之前你就已经醒了。你的手机屏幕使用时间报告让你的手机都感到窒息。如果内卷有奥运金牌，你已经拿大满贯了。但说真的，偶尔休息一下吧，地球不会因为你休息一天就停止转的……大概。",
+    mbti: "ESTJ",
+    mbtiName: "总经理型",
+    sbti: "CTRL",
+    sbtiName: "拿捏者"
   },
   {
     name: "精致利己主义者",
     emoji: "🎯",
     minScore: 13,
     maxScore: 20,
-    desc: "你深谙社会生存法则，知道什么时候该表现，什么时候该隐藏。你的人际关系是精心计算的投资组合，你的每一步都有明确的目的。别人觉得你很会来事，但你只是不想浪费任何一次有效社交。效率至上，感情靠边。",
-    colors: ["#f5c518","#ff9f43"]
+    desc: "你深谙社会生存法则，知道什么时候该表现，什么时候该隐藏。你的人际关系是精心计算的投资组合，你的每一步都有明确的目的。别人觉得你很会来事，但你只是不想浪费任何一次有效社交。你参加的每一个饭局都有明确的目的，你加的每一个微信都有潜在的价值。",
+    fun: "你就是那种「这个认识一下，以后可能有用」的社交达人。你的通讯录比百科全书还厚，但真正能打电话借钱的可能就一两个。你的人生格言是：人脉就是钱脉，所以你的人脉管理比基金经理还专业。你不是功利，你只是「战略性社交」。",
+    mbti: "ENTJ",
+    mbtiName: "指挥官型",
+    sbti: "CTRL",
+    sbtiName: "拿捏者"
   },
   {
     name: "人间清醒型选手",
     emoji: "🧠",
     minScore: 21,
     maxScore: 28,
-    desc: "你看透了这个世界的运行规则，但选择保持体面。你知道卷没意义但还是会适度卷，知道躺平很爽但不敢真躺。你活在理想和现实的夹缝中，用理性维持着微妙的平衡。你是朋友圈里最靠谱的人，也是深夜最焦虑的人。",
-    colors: ["#0f3460","#5f27cd"]
+    desc: "你看透了这个世界的运行规则，但选择保持体面。你知道卷没意义但还是会适度卷，知道躺平很爽但不敢真躺。你活在理想和现实的夹缝中，用理性维持着微妙的平衡。你是朋友圈里最靠谱的人，也是深夜最焦虑的人。你发的每一条朋友圈都经过了至少三轮审核。",
+    fun: "你就是那种「我知道这没意义，但我还是要做」的矛盾体。你一边骂内卷一边偷偷努力，一边说减肥一边点奶茶。你的收藏夹里有300篇「如何自律」的文章，但你一篇都没看完。你是当代最拧巴的一群人，但也是最真实的一群人。",
+    mbti: "INTJ",
+    mbtiName: "建筑师型",
+    sbti: "PHNX",
+    sbtiName: "凤凰型"
   },
   {
     name: "社交恐怖分子",
     emoji: "🎪",
     minScore: 29,
     maxScore: 36,
-    desc: "你的社交能量是核反应堆级别的。你认识的人比WiFi连接的设备还多，你的群聊消息永远99+。你可以在任何场合找到话题，和任何人聊成兄弟姐妹。你的朋友遍布五湖四海，但深夜独处时偶尔会想：这些人里有真朋友吗？",
-    colors: ["#00d2d3","#01a3a4"]
+    desc: "你的社交能量是核反应堆级别的。你认识的人比WiFi连接的设备还多，你的群聊消息永远99+。你可以在任何场合找到话题，和任何人聊成兄弟姐妹。你的人生信条是：没有破不了的冰，只有不够热情的人。你是所有聚会的灵魂人物，也是所有社恐的噩梦。",
+    fun: "你就是那种「诶你也是xx的？我也认识xx！」的连接器。你的微信好友数量可能比你的存款数字还好看。你的朋友圈评论比原帖还长。你的社交能力已经超越了语言——你用眼神就能和陌生人建立友谊。但深夜独处时偶尔会想：这些人里有真朋友吗？算了不想了，先去参加个派对。",
+    mbti: "ENFP",
+    mbtiName: "竞选者型",
+    sbti: "VIBE",
+    sbtiName: "氛围组型"
   },
   {
     name: "佛系摸鱼大师",
     emoji: "🐟",
     minScore: 37,
     maxScore: 44,
-    desc: "你已经超越了卷与不卷的二元对立。你不是不努力，你只是选择了更可持续的生活方式。你的摸鱼不是偷懒，是一种生活哲学。你能在老板的眼皮底下完成刚好够用的工作，然后准时下班享受人生。这不是摆烂，这是智慧。",
-    colors: ["#a29bfe","#6c5ce7"]
+    desc: "你已经超越了卷与不卷的二元对立。你不是不努力，你只是选择了更可持续的生活方式。你的摸鱼不是偷懒，是一种生活哲学。你能在老板的眼皮底下完成刚好够用的工作，然后准时下班享受人生。你的工作和生活平衡得像太极图一样和谐。",
+    fun: "你就是那种「我摸的不是鱼，是人生」的哲学家。你的浏览器永远开着两个窗口：一个是工作，一个是摸鱼。你能在3秒内把摸鱼页面切换成工作页面，这个技能比你的专业技能还熟练。你不是懒，你只是深谙「二八定律」——用20%的精力完成80%的工作。剩下的80%精力？用来思考人生。",
+    mbti: "ISFP",
+    mbtiName: "探险家型",
+    sbti: "CHILL",
+    sbtiName: "躺赢型"
   },
   {
     name: "精神内耗型哲学家",
     emoji: "🌪️",
     minScore: 45,
     maxScore: 52,
-    desc: "你的大脑24小时不停运转，思考人生的意义、宇宙的起源、以及昨天说的那句话是不是不太合适。你内心戏丰富到可以自编自导一部80集连续剧。别人看你很安静，其实你的脑子里正在上演一场世界大战。建议：少想多做，或者多想但别当真。",
-    colors: ["#fd79a8","#e84393"]
+    desc: "你的大脑24小时不停运转，思考人生的意义、宇宙的起源、以及昨天说的那句话是不是不太合适。你内心戏丰富到可以自编自导一部80集连续剧。别人看你很安静，其实你的脑子里正在上演一场世界大战。你发一条朋友圈要纠结半小时，发完之后每隔5分钟检查一次点赞数。",
+    fun: "你就是那种「算了不想了」之后又想了三个小时的人。你的脑子里有一个24小时运转的弹幕机，上面飘过的全是「我刚才是不是说错话了」「他是不是在内涵我」「我是不是应该换个活法」。你的焦虑已经形成了一个闭环：焦虑自己焦虑→因为焦虑而焦虑→无限循环。建议：少想多做，或者多想但别当真。或者…先想想该用什么建议。",
+    mbti: "INFJ",
+    mbtiName: "提倡者型",
+    sbti: "OCDR",
+    sbtiName: "纠结型"
   },
   {
     name: "躺平艺术家",
     emoji: "🛋️",
     minScore: 53,
     maxScore: 60,
-    desc: "你把躺平发展成了一门艺术。你不是懒，你只是重新定义了「成功」的含义。在一个人人内卷的时代，你用躺平来对抗荒谬，用摆烂来消解焦虑。你的人生信条是：既然卷不过，那就躺得漂亮。你是当代犬儒主义的实践者，是消费主义的抵抗者，是……算了不说了，躺着说太累。",
-    colors: ["#636e72","#2d3436"]
+    desc: "你把躺平发展成了一门艺术。你不是懒，你只是重新定义了「成功」的含义。在一个人人内卷的时代，你用躺平来对抗荒谬，用摆烂来消解焦虑。你的人生信条是：既然卷不过，那就躺得漂亮。你是当代犬儒主义的实践者，是消费主义的抵抗者。",
+    fun: "你就是那种「我不是在躺平，我是在进行水平方向的人生探索」的诗人。你的床是你最忠实的朋友，你的沙发是你最亲密的伙伴。你的人生目标已经从「改变世界」降级到「今天外卖准时到」。你不是没有梦想，你的梦想就是不用上班。你不是社畜，你是「自由职业者」——自由地选择躺着的职业。",
+    mbti: "INTP",
+    mbtiName: "逻辑学家型",
+    sbti: "LAZE",
+    sbtiName: "摆烂型"
   },
   {
     name: "混沌型自由灵魂",
     emoji: "🌊",
     minScore: 61,
     maxScore: 80,
-    desc: "你的人生没有剧本，没有计划，没有套路。你活在当下，以一种近乎野性的方式与世界互动。你的房间是混沌理论的实体展示，你的时间管理是薛定谔的猫。你可能不成功，但你一定不无聊。在这个被规则和框架束缚的世界里，你是最后的自由人（也可能是最后的迷路者）。",
-    colors: ["#74b9ff","#0984e3"]
+    desc: "你的人生没有剧本，没有计划，没有套路。你活在当下，以一种近乎野性的方式与世界互动。你的房间是混沌理论的实体展示，你的时间管理是薛定谔的猫。你可能不成功，但你一定不无聊。在这个被规则和框架束缚的世界里，你是最后的自由人。",
+    fun: "你就是那种「计划是什么？能吃吗？」的野生人类。你的人生就像一场即兴表演——没有剧本，没有彩排，全靠临场发挥。你的房间像是被龙卷风扫过，但你居然能在里面找到任何东西。你的时间观念是弹性的——你说的「马上」可能是5分钟也可能是5小时。你是混乱的，但也是自由的。在这个人人活在Excel表格里的时代，你活成了一首诗。",
+    mbti: "ENTP",
+    mbtiName: "辩论家型",
+    sbti: "CHAOS",
+    sbtiName: "混沌型"
   }
 ];
 
@@ -604,7 +741,7 @@ const dimNames = ["执行力","社交力","松弛感","叛逆值"];
 // ===== STATE =====
 let currentQ = 0;
 let answers = [];
-let dimScores = [0, 0, 0, 0]; // 执行力, 社交力, 松弛感, 叛逆值
+let dimScores = [0, 0, 0, 0];
 
 // ===== NAVIGATION =====
 function showScreen(id) {
@@ -630,6 +767,13 @@ document.getElementById('restartBtn').onclick = () => {
   renderQuestion();
 };
 
+document.getElementById('prevBtn').onclick = () => {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+  }
+};
+
 // ===== RENDER =====
 function renderQuestion() {
   const q = questions[currentQ];
@@ -638,6 +782,9 @@ function renderQuestion() {
   
   document.getElementById('progressFill').style.width = progress + '%';
   document.getElementById('progressText').textContent = `${currentQ + 1} / ${questions.length}`;
+  
+  // Update prev button state
+  document.getElementById('prevBtn').disabled = currentQ === 0;
   
   let html = `<div class="question-card">
     <div class="q-number">第 ${currentQ + 1} 题</div>
@@ -653,27 +800,26 @@ function renderQuestion() {
   area.innerHTML = html;
   
   // Show/hide submit button
-  document.getElementById('submitBtn').style.display = answers.length === questions.length ? 'inline-block' : 'none';
-  document.getElementById('hint').style.display = answers.length === questions.length ? 'none' : 'block';
+  const allAnswered = answers.filter(a => a !== undefined).length === questions.length;
+  document.getElementById('submitBtn').style.display = allAnswered ? 'inline-block' : 'none';
+  document.getElementById('hint').style.display = allAnswered ? 'none' : 'block';
 }
 
 function selectOption(idx) {
   answers[currentQ] = idx;
   
-  // Update UI
   document.querySelectorAll('.option').forEach((el, i) => {
     el.classList.toggle('selected', i === idx);
   });
   
-  // Auto advance after short delay
   setTimeout(() => {
     if (currentQ < questions.length - 1) {
       currentQ++;
       renderQuestion();
     } else {
-      // All answered
-      document.getElementById('submitBtn').style.display = 'inline-block';
-      document.getElementById('hint').style.display = 'none';
+      const allAnswered = answers.filter(a => a !== undefined).length === questions.length;
+      document.getElementById('submitBtn').style.display = allAnswered ? 'inline-block' : 'none';
+      document.getElementById('hint').style.display = allAnswered ? 'none' : 'block';
     }
   }, 300);
 }
@@ -682,22 +828,17 @@ function selectOption(idx) {
 document.getElementById('submitBtn').onclick = calculateResult;
 
 function calculateResult() {
-  // Reset dims
   dimScores = [0, 0, 0, 0];
   
-  // Calculate dimension scores
   answers.forEach((ans, qi) => {
+    if (ans === undefined) return;
     const dims = questions[qi].dims[ans];
-    dims.forEach(d => {
-      dimScores[d] += 1;
-    });
+    dims.forEach(d => { dimScores[d] += 1; });
   });
   
-  // Normalize to 0-100 scale
-  const maxPossible = questions.length * 2; // rough max per dimension
+  const maxPossible = questions.length * 2;
   const normalized = dimScores.map(s => Math.min(100, Math.round(s / maxPossible * 100)));
   
-  // Determine type based on score distribution
   const totalScore = dimScores.reduce((a, b) => a + b, 0);
   
   let type;
@@ -710,17 +851,17 @@ function calculateResult() {
   else if (totalScore <= 60) type = types[6];
   else type = types[7];
   
-  // Calculate match % (based on how concentrated the scores are)
   const maxDim = Math.max(...dimScores);
   const match = Math.min(99, Math.max(65, Math.round(50 + (maxDim / (totalScore || 1)) * 50)));
   
-  // Render result
   document.getElementById('resultEmoji').textContent = type.emoji;
   document.getElementById('resultType').textContent = type.name;
   document.getElementById('resultMatch').textContent = `匹配度 ${match}%`;
   document.getElementById('resultDesc').textContent = type.desc;
+  document.getElementById('resultFun').textContent = type.fun;
+  document.getElementById('mbtiType').textContent = `${type.mbti} ${type.mbtiName}`;
+  document.getElementById('sbtiType').textContent = `${type.sbti} ${type.sbtiName}`;
   
-  // Render dimension bars
   const dimList = document.getElementById('dimList');
   dimList.innerHTML = '';
   const dimColors = ['#e94560','#f5c518','#00d2d3','#a29bfe'];
@@ -745,7 +886,9 @@ document.getElementById('copyBtn').onclick = () => {
   const type = document.getElementById('resultType').textContent;
   const match = document.getElementById('resultMatch').textContent;
   const emoji = document.getElementById('resultEmoji').textContent;
-  const text = `🎭 当代人生存人格测试结果\n\n${emoji} ${type}\n${match}\n\n👉 测试链接：${window.location.href}`;
+  const mbti = document.getElementById('mbtiType').textContent;
+  const sbti = document.getElementById('sbtiType').textContent;
+  const text = `🎭 当代人生存人格测试结果\n\n${emoji} ${type}\n${match}\n\nMBTI: ${mbti}\nSBTI: ${sbti}\n\n👉 测试链接：${window.location.href}`;
   
   navigator.clipboard.writeText(text).then(() => {
     const btn = document.getElementById('copyBtn');
